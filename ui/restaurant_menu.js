@@ -93,7 +93,7 @@ $('.tw-checkout-button').click(function() {
   });
 
   $.ajax({
-    url: 'http://10.20.55.17:5002/blockCatalog?transaction=' + JSON.stringify(items),
+    url: 'http://10.20.55.17:5002/blockCatalog?entity_id=' + id + '&transaction=' + JSON.stringify(items),
     contentType: 'application/json',
     dataType: 'json',
     type: 'GET',
