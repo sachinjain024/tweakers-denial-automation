@@ -60,9 +60,12 @@ def add_rule():
     sql_rule_query = "INSERT INTO `rules`(`entity_id`) VALUES (\'"+str(entity_id)+"\')"
     db.write(sql_rule_query, cursor, conn)
     sql_get_rule_id = "SELECT `id` FROM `rule_parts` ORDER BY `id` DESC LIMIT 1"
-    rule_id = db.read(sql_rule_query, cursor)[0][0] 
+    result = db.read(sql_rule_query, cursor)[0]
+    if(result):
+        rule_id = result[0]
     sql_rule_parts_query = "INSERT INTO `rule_parts`(`quantity`, `operator`, `rule_id`, `item_id`) \
     VALUES (\'"+str(quantity)+"\', \'"+str(operator)+"\', \'"+str(rule_id)+"\', \'"+str(item_id)+"\')"
+    print sql_rule_parts_query
     db.write(sql_rule_parts_query, cursor, conn)
     return str("success")
 
