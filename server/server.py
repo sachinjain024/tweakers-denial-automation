@@ -40,7 +40,7 @@ def get_entity():
     sql_query = "SELECT "
     for attr in attr_list:
         sql_query+="`"+attr+"`,"
-    sql_query = sql_query[:-1] + "FROM `entities` WHERE `enabled` = 1 ORDER BY `rating` DESC"
+    sql_query = sql_query[:-1] + "FROM `entities` WHERE `enabled` = 1 AND `pending_orders` < 5 ORDER BY `rating` DESC"
     print sql_query
     results = db.read(sql_query, cursor)
     result_list = []
@@ -49,7 +49,26 @@ def get_entity():
         for (attrIndex) in zip(attr_list, xrange(len(attr_list))):
             result_dict[attrIndex[0]] = result[attrIndex[1]] 
         result_list.append(result_dict)
-    return str(json.dumps(result_list)) 
+    return str(json.dumps(result_list))
+
+@app.route('/addRule')
+def add_rule():
+    entity_id = request.values['entity_id']
+    # sql_query = 
+    attr_list = ['id', 'name', 'price', 'imageUrl', 'description', 'stars']
+    sql_query = "SELECT "
+    for attr in attr_list:
+        sql_query+="`"+attr+"`,"
+    sql_query = sql_query[:-1] + "FROM `items` WHERE `entity` = " + entity_id +" AND `enabled` = 1 ORDER BY `price` ASC"
+    # print sql_query
+    results = db.read(sql_query, cursor)
+    result_list = []
+    for result in results:
+        result_dict = {}
+        for (attrIndex) in zip(attr_list, xrange(len(attr_list))):
+            result_dict[attrIndex[0]] = result[attrIndex[1]] 
+        result_list.append(result_dict)
+    return str(json.dumps(result_list))
 
 @app.route('/getCatalog', methods=['GET'])
 def get_menu():
@@ -58,7 +77,7 @@ def get_menu():
     sql_query = "SELECT "
     for attr in attr_list:
         sql_query+="`"+attr+"`,"
-    sql_query = sql_query[:-1] + "FROM `items` WHERE `entity` = " + entity_id +" AND `enabled` = 1 ORDER BY `price` ASC"
+    sql_query = sql_query[:-1] + "FROM `items` WHERE `entity` = " + entity_id +" AND `enabled` = 1 AND `quantity` > 0 ORDER BY `price` ASC"
     # print sql_query
     results = db.read(sql_query, cursor)
     result_list = []
@@ -75,6 +94,7 @@ def create_transaction():
 @app.route('/blockCatalog', methods=['GET'])
 def update_catalog():
     transactions = json.loads(request.values['transaction'])
+    entity_id = request.values['entity_id']
     dict_to_update = {}
     # dict_to_return = {}
     for transaction in transactions:
@@ -105,7 +125,11 @@ def update_catalog():
             sql_write_query = "UPDATE `items` set `quantity` = " + str(dict_to_update[result[0]]) + " WHERE `id` = "+str(result[0])
             db.write(sql_write_query, cursor, conn)
         result_to_user['status'] = 1
-        # return "1"
+        # sql_pending_order_read = "SELECT `pending_orders` FROM "
+        # sql_order_string = conn.escape_string(request.values['transaction'])
+        sql_transaction_query = "UPDATE `entities` set `pending_orders` = `pending_orders` + 1 WHERE `id` = "+entity_id
+        # print sql_transaction_query
+        db.write(sql_transaction_query, cursor, conn)
     else:
         result_to_user['status'] = 0
         result_to_user['items'] = transactions
