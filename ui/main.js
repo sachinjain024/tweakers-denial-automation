@@ -18,7 +18,7 @@ var cardTemplate = '<div class="col-md-4">' +
 '            <!--Text-->' + 
 '            <p class="card-text tw-restaurant-details">Some quick example text to build on the card title and make up the bulk of the cards content.</p>' + 
 '            <div class="read-more">' + 
-'             <a href="#!" class="btn btn-primary">Visit</a>' + '</div>' + 
+'             <a href="#!" class="btn btn-primary tw-restaurant-link" target="_blank">Visit</a>' + '</div>' + 
 '        </div>' + 
 '        <!--/.Card content-->' + 
 
@@ -42,7 +42,9 @@ $.ajax({
 
 	  	$card.find('.tw-imageUrl').attr('src', restaurantObject.imageUrl);
 	    $card.find('.tw-restaurant-name').html(restaurantObject.name);
+      $card.find('.tw-restaurant-link').attr('href', 'restaurant.html?id=' + restaurantObject.id + '&name=' + restaurantObject.name);
+
 	    $card.appendTo('.tw-row-' + rowIndex);
     }
   }
-})
+});

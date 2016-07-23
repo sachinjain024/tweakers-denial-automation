@@ -1,0 +1,19 @@
+.right {
+	float: right;
+}
+
+.tw-imageUrl.menu-item-image {
+	height: 100px;
+	width: 100px;
+}
+
+.tw-item-price {
+	float: right;
+	position: relative;
+    top: 15px;
+    right: 20px;
+}
+
+.tw-checkout-button {
+	float: right;
+}
