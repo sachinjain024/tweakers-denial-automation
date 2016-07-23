@@ -17,7 +17,7 @@ config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config', '
 conn, cursor = db.connect()
 app_name = "local"
 
-DEBUG = True
+DEBUG = False
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -54,21 +54,17 @@ def get_entity():
 @app.route('/addRule')
 def add_rule():
     entity_id = request.values['entity_id']
-    # sql_query = 
-    attr_list = ['id', 'name', 'price', 'imageUrl', 'description', 'stars']
-    sql_query = "SELECT "
-    for attr in attr_list:
-        sql_query+="`"+attr+"`,"
-    sql_query = sql_query[:-1] + "FROM `items` WHERE `entity` = " + entity_id +" AND `enabled` = 1 ORDER BY `price` ASC"
-    # print sql_query
-    results = db.read(sql_query, cursor)
-    result_list = []
-    for result in results:
-        result_dict = {}
-        for (attrIndex) in zip(attr_list, xrange(len(attr_list))):
-            result_dict[attrIndex[0]] = result[attrIndex[1]] 
-        result_list.append(result_dict)
-    return str(json.dumps(result_list))
+    quantity = request.values['quantity']
+    operator = request.values['operator']
+    item_id = request.values['item_id']
+    sql_rule_query = "INSERT INTO `rules`(`entity_id`) VALUES (\'"+str(entity_id)+"\')"
+    db.write(sql_rule_query, cursor, conn)
+    sql_get_rule_id = "SELECT `id` FROM `rule_parts` ORDER BY `id` DESC LIMIT 1"
+    rule_id = db.read(sql_rule_query, cursor)[0][0] 
+    sql_rule_parts_query = "INSERT INTO `rule_parts`(`quantity`, `operator`, `rule_id`, `item_id`) \
+    VALUES (\'"+str(quantity)+"\', \'"+str(operator)+"\', \'"+str(rule_id)+"\', \'"+str(item_id)+"\')"
+    db.write(sql_rule_parts_query, cursor, conn)
+    return str("success")
 
 @app.route('/getCatalog', methods=['GET'])
 def get_menu():
